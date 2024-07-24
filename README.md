@@ -5,7 +5,7 @@ This project presents a novel approach to biometric identification that integrat
 
 ## Features
 - **High Accuracy**: Outperforms traditional transformers and CNN-based models in biometric identification tasks.
-- **Computational Efficiency**: Achieves better results with reduced computational overhead, making it suitable for real-time applications.
+- **Computational Efficiency**: Achieves better results with reduced computational overhead.
 - **Innovative Architecture**: Combines the strengths of Mamba for long-range dependency modeling with the U-Net architecture for detailed spatial feature extraction.
 - **Pretrained Weights**: Includes pretrained weights for faster deployment and fine-tuning.
 
@@ -21,39 +21,42 @@ This project presents a novel approach to biometric identification that integrat
 ## Getting Started
 
 ### Installation
-1. Clone the repository:
+Clone the repository:
    ```bash
    git clone https://github.com/Avir-AI/hand_identification_mamba.git
-   cd biometric-identification-SU-SUM
-   Ensure you have Python >= 3.10 installed on your system. Then, install the required libraries and dependencies.
+   cd ./hand_identification_mamba
    ```
+Ensure you have Python >= 3.10 installed on your system. Then, install the required libraries and dependencies.
 ### Requirements
 ```bash
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 ```
 ### Pre-trained Weights
 - [Download The Model](https://drive.google.com/file/d/1HYkJykldDl1DiKmvkk6T3j8IM3qI1U6G/view?usp=drive_link): `new_best.pth`
 - Move `new_best.pth` to: `net/pre_trained_weights`
 
+## Inference
+```bash
+python inference.py --img_path input-path
+```
 ## Training
 
 To train the model, first download the necessary pre-trained weights and datasets:
 
 1. **Pretrained Encoder Weights**: Download from [VMamba GitHub](https://github.com/MzeroMiko/VMamba/releases/download/%2320240218/vssmsmall_dp03_ckpt_epoch_238.pth)  or [google drive](https://drive.google.com/file/d/1zUczEDh09Sr2HtQclYwGBvTh0Gwydr52/view?usp=sharing) and move the file to `net/pre_trained_weights/vssmsmall_dp03_ckpt_epoch_238.pth`.
-2. **Datasets**: Download the dataset of 7 different sets from the provided Google Drive link. This zip file contains 256x256 images of stimuli, saliency maps, fixation maps, and ID CSVs of datasets SALICON, MIT1003, CAT2000, SALECI, UEYE, and FIWI.
-   - [Download datasets](https://drive.google.com/file/d/1Mdk97UB0phYDZv8zgjBayeC1I1_QcUmh/view?usp=drive_link)
+2. **Datasets**: Download the dataset of 11k hands images
+   - [Download datasets](link)
    - unzip and move `datasets` directory to `./`
    
 Run the training process:
-
 ```bash
 python train.py
 ```
 ## Validation
-
-For model validation on the dataset's validation set, download the dataset as mentioned above. then execute the validation script:
-
+After downloading the 11k hands images and , Run the validation process:
 ```bash
 python validation.py
 ```
-
+## Contact
+For any questions or issues, please open an issue on GitHub or contact the project maintainer at Amir.soltani1381@gmail.com.
