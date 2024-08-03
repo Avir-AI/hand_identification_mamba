@@ -33,10 +33,10 @@ pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https
 pip install -r requirements.txt
 ```
 ### Pre-trained Weights
-- [Download The Model](https://drive.google.com/file/d/1HYkJykldDl1DiKmvkk6T3j8IM3qI1U6G/view?usp=drive_link): `new_best.pth`
-- Move `new_best.pth` to: `net/pre_trained_weights`
+- [Download The Model](https://drive.google.com/file/d/1Te6sOMhBtbSUTqDzwWGTPkuPiS8cdZtB/view?usp=drive_link): `best.pth`
+- Move `best.pth` to: `net/pre_trained_weights`
 
-## Inference
+## Inference (not implemented)
 ```bash
 python inference.py --img_path input-path
 ```
@@ -56,7 +56,8 @@ python train.py
 ## Validation
 After downloading the 11k hands images and , Run the validation process:
 ```bash
-python validation.py
+python val.py
 ```
 ## Contact
 For any questions or issues, please open an issue on GitHub or contact the project maintainer at Amir.soltani1381@gmail.com.
+
