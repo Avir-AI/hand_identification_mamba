@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
+from torchvision import transforms, datasets
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from PIL import Image
@@ -31,7 +31,8 @@ class HandDataset(Dataset):
         return image, [torch.tensor(label1), torch.tensor(label2), torch.tensor(label3)]
 
 class Make_dataset:
-    def __init__(self, image_directory = 'Hands', info = 'HandInfo.csv', batch_size = 20, img_height = 224, img_width = 224, split_size = 0.2):
+    def __init__(self, image_directory = 'Hands', info = 'HandInfo.csv', batch_size = 20, 
+                 img_height = 224, img_width = 224, split_size = 0.2):
         #parameters
         self.image_directory = image_directory
         self.batch_size = batch_size
@@ -100,19 +101,24 @@ class Make_dataset:
         self.num_classes3 = len(pairs[2][1].classes_)
 
 
-def create_datasets():
+def create_datasets(infer = None):
     make_dataset = Make_dataset()
-    make_dataset.define_data_frames()
-    make_dataset.encoder()
-    # Create datasets
-    train_dataset = HandDataset(make_dataset.train_df, 
-                                [make_dataset.train_id_one_hot, make_dataset.train_age_one_hot, make_dataset.train_gender_one_hot], 
-                                make_dataset.image_directory, transform=make_dataset.data_transforms['train'])
-    val_dataset = HandDataset(make_dataset.val_df, 
-                              [make_dataset.val_id_one_hot, make_dataset.val_age_one_hot, make_dataset.val_gender_one_hot], 
-                              make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    if not infer:
+        make_dataset.define_data_frames()
+        make_dataset.encoder()
+        # Create datasets
+        train_dataset = HandDataset(make_dataset.train_df, 
+                                    [make_dataset.train_id_one_hot, make_dataset.train_age_one_hot, make_dataset.train_gender_one_hot], 
+                                    make_dataset.image_directory, transform=make_dataset.data_transforms['train'])
+        val_dataset = HandDataset(make_dataset.val_df, 
+                                [make_dataset.val_id_one_hot, make_dataset.val_age_one_hot, make_dataset.val_gender_one_hot], 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
 
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=make_dataset.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=make_dataset.batch_size, shuffle=False)
-    return train_loader, val_loader, make_dataset
+        # Create data loaders
+        train_loader = DataLoader(train_dataset, batch_size=make_dataset.batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=make_dataset.batch_size, shuffle=False)
+        return train_loader, val_loader, make_dataset
+    else:
+        dataset = datasets.ImageFolder(root=infer, transform=make_dataset.data_transforms['val'])
+        val_loader = DataLoader(dataset, batch_size=make_dataset.batch_size, shuffle=False)
+        return None, val_loader, make_dataset
