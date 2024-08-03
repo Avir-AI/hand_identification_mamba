@@ -1,6 +1,4 @@
 scikit-image
-torch
-torchvision
 packaging
 causal-conv1d>=1.1.0
 mamba-ssm
@@ -15,3 +13,5 @@ SimpleITK
 medpy
 yacs
 timm
+torch
+torchvision
