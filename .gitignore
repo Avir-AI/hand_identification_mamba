@@ -9,7 +9,8 @@
 *.jif
 *.jfif
 *.jfi
-
+Hands
+infer
 # JPEG 2000
 *.jp2
 *.j2k
@@ -148,7 +149,8 @@ fabric.properties
 ### PyCharm+all Patch ###
 # Ignore everything but code style settings and run configurations
 # that are supposed to be shared within teams.
-
+runs
+inference.py
 .idea/*
 
 !.idea/codeStyles
