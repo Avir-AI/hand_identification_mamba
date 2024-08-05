@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
-from model import load_model
+from model_prompt import load_model
 from data import create_datasets, HandDataset
 from schedule import *
 
