@@ -2,11 +2,11 @@ import torch
 from torch import nn, optim
 from torch.utils.tensorboard import SummaryWriter
 from model import load_model
-from data import create_datasets
+from data_open import create_datasets
 import copy
 import sys
 from schedule import *
-from val import validation
+from val_open import validation
 
 
 # Parameters
@@ -27,10 +27,12 @@ scheduler = CustomLRScheduler(optimizer, lr, 8e-4, 10, 30, 4e-4)
 # Initialize TensorBoard SummaryWriter
 writer = SummaryWriter('runs/experiment_2')
 
+
 # Training function
 def train_model(model, train_loader, val_loader, criterion, optimizer, device, 
                 scheduler, num_epochs=25, patience=10, base_model_path="./net/pre_trained_weights/best.pth"):
     best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
     epochs_no_improve = 0
     # Training loop
     best_val_loss = float('inf')
@@ -40,7 +42,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device,
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
-            if phase == 'val':
+            if phase == 'val' and epoch % 5 == 0:
                 lss = validation(model)
                 scheduler.step()
                 if lss < best_val_loss:
@@ -57,9 +59,15 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device,
                     model.load_state_dict(best_model_wts)
                     writer.close()
                     return model
-            else:
+                continue
+
+            elif phase == 'val':
+                continue
+            
+            elif phase == 'train':
                 model.train()  # Set model to training mode
                 data_loader = train_loader
+
             running_loss = 0.0
             running_corrects1 = 0
             running_corrects2 = 0

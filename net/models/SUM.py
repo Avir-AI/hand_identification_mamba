@@ -25,13 +25,13 @@ class SUM(nn.Module):
                                )
 
     def forward(self, x, condition = torch.eye(4)[torch.randint(0, 4, (10,))].cuda()):
-            if x.size()[1] == 1:
-                x = x.repeat(1, 3, 1, 1)
-            logits = self.salu_mamba(x, condition)
-            if self.num_classes == 1:
-                return torch.sigmoid(logits)
-            else:
-                return logits
+        if x.size()[1] == 1:
+            x = x.repeat(1, 3, 1, 1)
+        logits = self.salu_mamba(x, condition)
+        if self.num_classes == 1:
+            return torch.sigmoid(logits)
+        else:
+            return logits
 
     def load_from(self):
         if self.load_ckpt_path is not None:

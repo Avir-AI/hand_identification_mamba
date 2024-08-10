@@ -14,7 +14,7 @@ class setting_config:
         'num_classes': 1,
         'input_channels': 3,
         # ----- SUM ----- #
-        'depths': [2, 2, 9, 2],
+        'depths': [2, 2, 27, 2],
         'depths_decoder': [2, 2, 2, 1],
         'drop_path_rate': 0.3,
         'load_ckpt_path': './net/pre_trained_weights/vssmsmall_dp03_ckpt_epoch_238.pth',

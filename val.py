@@ -12,6 +12,7 @@ train_loader, val_loader, make_dataset = create_datasets()
 # Model setup
 model = load_model(make_dataset.num_classes1, make_dataset.num_classes2, make_dataset.num_classes3)
 model = model.cuda()
+model.load_state_dict(torch.load("./net/pre_trained_weights/best_no_schedule.pth", map_location="cuda"))
 
 # Set up criterion, optimizer, and learning rate scheduler
 criterion = nn.CrossEntropyLoss(label_smoothing=0.1)  # Use CrossEntropyLoss with label smoothing
@@ -65,13 +66,19 @@ def val_result(key, val_df, device, model = model, criterion = criterion,
 
     print(f'{key} results: Test Loss: {test_loss:.4f} Acc_Id: {test_acc1:.4f} Acc_Age: {test_acc2:.4f} Acc_Gender: {test_acc3:.4f}')
     
-    return test_loss, test_acc1, test_acc2, test_acc3
+    return test_loss
 
 # Set device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.load_state_dict(torch.load("./net/pre_trained_weights/best_no_schedule.pth", map_location="cuda"))
-for key in make_dataset.val_dic:
-    val_result(key, make_dataset.val_dic[key].copy(deep = True), device)
+def validation(model_inp):
+    global model
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if model_inp:
+        model = model_inp
+    for key in make_dataset.val_dic:
+        val_result(key, make_dataset.val_dic[key].copy(deep = True), device)
+
+if __name__ == "main":
+    validation()
 
 
 
