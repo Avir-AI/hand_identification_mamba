@@ -9,11 +9,11 @@ from schedule import CustomLRScheduler  # Ensure this is correctly imported
 from val_open import validation  # Ensure this is correctly imported
 
 # Parameters
-lr = 8e-6
-num_epochs = 70
+lr = 2e-3
+num_epochs = 60
 
 # Load data
-train_loader, val_loader, make_dataset = create_datasets()
+train_loader, val_loader, make_dataset, vals, gals = create_datasets()
 
 # Model setup
 model = load_model()
@@ -22,7 +22,7 @@ model = model.cuda()
 # Set up criterion, optimizer, and learning rate scheduler
 criterion = nn.TripletMarginLoss(margin=1.0, p=2)  # Use TripletMarginLoss for triplet-based training
 optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
-scheduler = CustomLRScheduler(optimizer, lr, 8e-4, 10, 30, 4e-4)
+scheduler = CustomLRScheduler(optimizer, lr, 0.1, 25)
 
 # Initialize TensorBoard SummaryWriter
 writer = SummaryWriter('runs/experiment_2')
@@ -78,7 +78,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device,
         torch.save(model.state_dict(), base_model_path)  # Save the best model
         scheduler.step()
         # Validation phase
-        if epoch % 5 == 0:
+        if epoch % 3 == 0:
             model.eval()
             val_loss = validation(base_model_path)
             

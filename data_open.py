@@ -37,7 +37,9 @@ class HandDataset(Dataset):
         anchor_label = self.labels.iloc[idx].astype(float)
 
         # Find a positive example
-        same_id_df = self.dataframe[self.dataframe['id'] == self.dataframe.iloc[idx]['id']]
+        same_id_df = self.dataframe[(self.dataframe['id'] == self.dataframe.iloc[idx]['id']) &
+                                    (self.dataframe['p'] == self.dataframe.iloc[idx]['p']) &
+                                    (self.dataframe['r'] == self.dataframe.iloc[idx]['r'])]
         if same_id_df.empty:
             raise ValueError("No positive example found for the anchor")
         positive_idx = random.choice(same_id_df.index)
@@ -45,7 +47,9 @@ class HandDataset(Dataset):
         positive_image = Image.open(positive_img_name).convert('RGB')
 
         # Find a negative example
-        different_id_df = self.dataframe[self.dataframe['id'] != self.dataframe.iloc[idx]['id']]
+        different_id_df = self.dataframe[(self.dataframe['id'] != self.dataframe.iloc[idx]['id']) & 
+                                         (self.dataframe['p'] == self.dataframe.iloc[idx]['p']) &
+                                         (self.dataframe['r'] == self.dataframe.iloc[idx]['r'])]
         if different_id_df.empty:
             raise ValueError("No negative example found for the anchor")
         negative_idx = random.choice(different_id_df.index)
@@ -61,7 +65,7 @@ class HandDataset(Dataset):
 
 
 class Make_dataset:
-    def __init__(self, image_directory='Hands', info='HandInfo.csv', batch_size=30, 
+    def __init__(self, image_directory='Hands', info='HandInfo.csv', batch_size=20, 
                  img_height=224, img_width=224, split_size=0.5):
         self.image_directory = image_directory
         self.batch_size = batch_size
@@ -114,25 +118,69 @@ class Make_dataset:
         self.val_df['id'] = enc.transform(self.val_df['id'])
         self.num_classes1 = len(enc.classes_)
 
-def create_datasets(infer=None):
+def create_datasets():
     make_dataset = Make_dataset()
-    if not infer:
-        make_dataset.define_data_frames()
-        make_dataset.encoder()
-        # Create datasets
-        train_dataset = HandDataset(make_dataset.train_df, 
-                                    make_dataset.train_df.id, 
-                                    make_dataset.image_directory, transform=make_dataset.data_transforms['train'])
-        val_dataset = HandDataset(make_dataset.val_df, 
-                                  make_dataset.val_df.id, 
-                                  make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
-        # Create data loaders
-        train_loader = DataLoader(train_dataset, batch_size=make_dataset.batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=make_dataset.batch_size, shuffle=False)
-        return train_loader, val_loader, make_dataset
-    else:
-        dataset = datasets.ImageFolder(root=infer, transform=make_dataset.data_transforms['val'])
-        val_loader = DataLoader(dataset, batch_size=make_dataset.batch_size, shuffle=False)
-        return None, val_loader, make_dataset
+    make_dataset.define_data_frames()
+    make_dataset.encoder()
+    # Create datasets
+    make_dataset.val_p_r = make_dataset.val_df[(make_dataset.val_df.p == 1) & (make_dataset.val_df.r == 1)]
+    make_dataset.val_p_l = make_dataset.val_df[(make_dataset.val_df.p == 1) & (make_dataset.val_df.r == 0)]
+    make_dataset.val_d_r = make_dataset.val_df[make_dataset.val_df.p == 0 & (make_dataset.val_df.r == 1)]
+    make_dataset.val_d_l = make_dataset.val_df[(make_dataset.val_df.p == 0) & (make_dataset.val_df.r == 0)]
+
+    gallery_p_r = make_dataset.val_p_r.groupby('id').apply(lambda x: x.sample(1)).reset_index(drop=True)
+    gallery_p_l = make_dataset.val_p_l.groupby('id').apply(lambda x: x.sample(1)).reset_index(drop=True)
+    gallery_d_r = make_dataset.val_d_r.groupby('id').apply(lambda x: x.sample(1)).reset_index(drop=True)
+    gallery_d_l = make_dataset.val_d_l.groupby('id').apply(lambda x: x.sample(1)).reset_index(drop=True)
+
+    train_dataset = HandDataset(make_dataset.train_df, 
+                                make_dataset.train_df.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['train'])
+    
+    val_dataset = HandDataset(make_dataset.val_df, 
+                                make_dataset.val_df.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    val_dataset_p_r = HandDataset(make_dataset.val_p_r, 
+                                make_dataset.val_p_r.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    val_dataset_p_l = HandDataset(make_dataset.val_p_l, 
+                                make_dataset.val_p_l.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    val_dataset_d_r = HandDataset(make_dataset.val_d_r, 
+                                make_dataset.val_d_r.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    val_dataset_d_l = HandDataset(make_dataset.val_d_l, 
+                                make_dataset.val_d_l.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    
+    gal_dataset_p_r = HandDataset(gallery_p_r, 
+                                gallery_p_r.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    gal_dataset_p_l = HandDataset(gallery_p_l, 
+                                gallery_p_l.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    gal_dataset_d_r = HandDataset(gallery_d_r, 
+                                gallery_d_r.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    gal_dataset_d_l = HandDataset(gallery_d_l, 
+                                gallery_d_l.id, 
+                                make_dataset.image_directory, transform=make_dataset.data_transforms['val'])
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=make_dataset.batch_size, shuffle=True)
+
+    val_loader = DataLoader(val_dataset, batch_size=make_dataset.batch_size, shuffle=False)
+    val_loader_p_r = DataLoader(val_dataset_p_r, batch_size=make_dataset.batch_size, shuffle=False)
+    val_loader_p_l = DataLoader(val_dataset_p_l, batch_size=make_dataset.batch_size, shuffle=False)
+    val_loader_d_r = DataLoader(val_dataset_d_r, batch_size=make_dataset.batch_size, shuffle=False)
+    val_loader_d_l = DataLoader(val_dataset_d_l, batch_size=make_dataset.batch_size, shuffle=False)
+
+    gal_loader_p_r = DataLoader(gal_dataset_p_r, batch_size=make_dataset.batch_size, shuffle=False)
+    gal_loader_p_l = DataLoader(gal_dataset_p_l, batch_size=make_dataset.batch_size, shuffle=False)
+    gal_loader_d_r = DataLoader(gal_dataset_d_r, batch_size=make_dataset.batch_size, shuffle=False)
+    gal_loader_d_l = DataLoader(gal_dataset_d_l, batch_size=make_dataset.batch_size, shuffle=False)
+
+    vals = [val_loader_p_r, val_loader_p_l, val_loader_d_r, val_loader_d_l]
+    gals = [gal_loader_p_r, gal_loader_p_l, gal_loader_d_r, gal_loader_d_l]
+    return train_loader, val_loader, make_dataset, vals, gals
 
 

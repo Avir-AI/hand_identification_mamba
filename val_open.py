@@ -3,67 +3,70 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
 from model_id import load_model
-from data_open import create_datasets, HandDataset
+from data_open import create_datasets
 
 # Load data
-train_loader, val_loader, make_dataset = create_datasets()
+train_loader, _, make_dataset, vals, gals = create_datasets()
 
 # Model setup
 model = load_model()
 model = model.cuda()
 
 # Set up criterion and device
-criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def extract_features(loader, model, device):
     """Extract features from the model for a given data loader."""
     model.eval()
-    anchor_features = []
-    positive_features = []
-    negative_features = []
+    features = []
     labels = []
     
     with torch.no_grad():
-        for anchor, positive, negative, anchor_label in loader:
-            anchor = anchor.to(device)
-            positive = positive.to(device)
-            negative = negative.to(device)
-            
-            anchor_output = model(anchor)
-            positive_output = model(positive)
-            negative_output = model(negative)
-            
-            anchor_features.append(anchor_output.cpu())
-            positive_features.append(positive_output.cpu())
-            negative_features.append(negative_output.cpu())
-            labels.append(anchor_label.cpu())
+        for data, _, _, label in loader:
+            data = data.to(device)
+            output = model(data)
+            features.append(output)
+            labels.append(label.to(device))
     
-    return (torch.cat(anchor_features), torch.cat(positive_features), torch.cat(negative_features)), torch.cat(labels)
+    return torch.cat(features), torch.cat(labels)
 
-def compute_triplet_accuracy(anchor_features, positive_features, negative_features):
-    """Compute accuracy based on triplet constraints."""
-    pos_dist = F.pairwise_distance(anchor_features, positive_features)
-    neg_dist = F.pairwise_distance(anchor_features, negative_features)
+def compute_accuracy(val_features, val_labels, gal_features, gal_labels):
+    """Compare labels of each output in vals with the 3 nearest outputs in gals."""
+    # Compute pairwise distances on GPU
+    distances = torch.cdist(val_features, gal_features)
     
-    correct = (pos_dist < neg_dist).sum().item()
-    total = anchor_features.size(0)
+    # Find the 3 nearest neighbors on GPU
+    nearest_indices = distances.topk(2, largest=False).indices
+    nearest_labels = gal_labels[nearest_indices]
     
+    # Check if the correct label is among the top 3 nearest neighbors
+    correct = (nearest_labels == val_labels.unsqueeze(1)).any(dim=1).sum().item()
+    total = val_labels.size(0)
+
     return correct / total
 
-def validate(model, val_loader, device):
-    # Extract features for validation dataset
-    (val_anchor_features, val_positive_features, val_negative_features), val_labels = extract_features(val_loader, model, device)
+def validate(model, val_loader, gals_loader, device):
+    # Extract features for validation and gallery datasets
+    val_features, val_labels = extract_features(val_loader, model, device)
+    gal_features, gal_labels = extract_features(gals_loader, model, device)
     
-    # Compute triplet accuracy
-    triplet_accuracy = compute_triplet_accuracy(val_anchor_features, val_positive_features, val_negative_features)
-    print(f'Triplet Accuracy: {triplet_accuracy:.4f}')
-    return -1 * triplet_accuracy
+    # Compute accuracy based on nearest neighbors
+    accuracy = compute_accuracy(val_features, val_labels, gal_features, gal_labels)
+    #print(f'Validation Accuracy: {accuracy:.4f}')
+    return accuracy
 
 def validation(model_inp):
-    model.load_state_dict(torch.load(model_inp, map_location="cuda"))
+    model.load_state_dict(torch.load(model_inp, map_location=device))
     
     # Validate on the entire validation dataset
-    total_accuracy = validate(model, val_loader, device)
-    
-    return total_accuracy
+    names = ('p_r', 'p_l', 'd_r', 'd_l')
+    total_accuracy = 0
+    for name, val_loader, gal_loader in zip(names, vals, gals):
+        acc = validate(model, val_loader, gal_loader, device)
+        print(f'Acc for {name}: {acc}')
+        total_accuracy += acc
+    print()
+    return -1*total_accuracy
+
+if __name__ == "__main__":
+    validation("./net/pre_trained_weights/best.pth")

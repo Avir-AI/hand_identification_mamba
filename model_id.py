@@ -9,13 +9,13 @@ class FullyConnectedNetwork(nn.Module):
         self.sum_model = sum_model
         self.flatten = nn.Flatten()
         self.dropout = nn.Dropout(dropout_rate)
-        self.bn1_1 = nn.BatchNorm1d(1024)
-        self.fc1_1 = nn.Linear(input_features, 1024)
+        self.bn1_1 = nn.BatchNorm1d(256)
+        self.fc1_1 = nn.Linear(input_features, 256)
 
     def forward(self, x):
         x = self.sum_model(x)
         x = self.flatten(x)
-        out = torch.relu(self.bn1_1(self.fc1_1(x)))
+        out = self.bn1_1(self.fc1_1(x))
         return out
 
 def load_model():
