@@ -9,13 +9,15 @@ class FullyConnectedNetwork(nn.Module):
         self.sum_model = sum_model
         self.flatten = nn.Flatten()
         self.dropout = nn.Dropout(dropout_rate)
-        self.bn1_1 = nn.BatchNorm1d(256)
-        self.fc1_1 = nn.Linear(input_features, 256)
+        self.bn2d = nn.BatchNorm2d(num_features=24)
+        #self.fc1_1 = nn.Linear(input_features, 256)
+        self.conv = nn.Conv2d(in_channels=768, out_channels=24, kernel_size=1)
 
     def forward(self, x):
         x = self.sum_model(x)
-        x = self.flatten(x)
-        out = self.bn1_1(self.fc1_1(x))
+        x = x.permute(0, 3, 1, 2)
+        out = self.bn2d(self.conv(x))
+        out = self.flatten(out)
         return out
 
 def load_model():
