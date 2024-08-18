@@ -32,8 +32,8 @@ def load_model():
         load_ckpt_path=model_cfg['load_ckpt_path'],
     )
     par = list(sum_model.parameters())
-    for i in range(int(len(par) / 1.5)):
-        par[i].requires_grad = False
+    # for i in range(int(len(par) / 1.5)):
+    #     par[i].requires_grad = False
     sum_model.load_from()
     sum_model.cuda()
     input_features = 37632  # Adjust based on your model's output shape
