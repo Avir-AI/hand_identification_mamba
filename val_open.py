@@ -1,8 +1,5 @@
 import torch
-from torch.utils.data import DataLoader
-import torch.nn as nn
-import torch.nn.functional as F
-from model_id import load_model
+from new_model import load_model
 from data_open import create_datasets
 
 # Load data

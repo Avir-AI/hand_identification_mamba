@@ -3,16 +3,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, datasets
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from PIL import Image
-import os
-import pandas as pd
-import numpy as np
-import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, datasets
+from torchvision import transforms
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from PIL import Image
@@ -65,7 +56,7 @@ class HandDataset(Dataset):
 
 
 class Make_dataset:
-    def __init__(self, image_directory='Hands', info='HandInfo.csv', batch_size=20, 
+    def __init__(self, image_directory='Hands', info='HandInfo.csv', batch_size=5, 
                  img_height=224, img_width=224, split_size=0.5):
         self.image_directory = image_directory
         self.batch_size = batch_size

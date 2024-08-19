@@ -1,12 +1,13 @@
 import torch
 from torch import nn, optim
 from torch.utils.tensorboard import SummaryWriter
-from model_id import load_model
+from new_model import load_model
 from data_open import create_datasets
 import copy
 import sys
 from schedule import CustomLRScheduler  # Ensure this is correctly imported
 from val_open import validation  # Ensure this is correctly imported
+from loss import ContrastiveLoss
 
 # Parameters
 lr = 2e-3
@@ -20,7 +21,7 @@ model = load_model()
 model = model.cuda()
 
 # Set up criterion, optimizer, and learning rate scheduler
-criterion = nn.TripletMarginLoss(margin=1.0, p=2)  # Use TripletMarginLoss for triplet-based training
+criterion = ContrastiveLoss(margin=1.0)  # Use TripletMarginLoss for triplet-based training
 optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
 scheduler = CustomLRScheduler(optimizer, lr, 0.1, 25)
 
