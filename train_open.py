@@ -10,7 +10,7 @@ from val_open import validation  # Ensure this is correctly imported
 from loss import ContrastiveLoss
 
 # Parameters
-lr = 2e-3
+lr = 8e-5
 num_epochs = 60
 
 # Load data
@@ -23,7 +23,7 @@ model = model.cuda()
 # Set up criterion, optimizer, and learning rate scheduler
 criterion = ContrastiveLoss(margin=1.0)  # Use TripletMarginLoss for triplet-based training
 optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
-scheduler = CustomLRScheduler(optimizer, lr, 0.1, 25)
+scheduler = CustomLRScheduler(optimizer, lr, 8e-4, 1e-4, 30, 45)
 
 # Initialize TensorBoard SummaryWriter
 writer = SummaryWriter('runs/experiment_2')
