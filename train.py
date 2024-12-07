@@ -29,7 +29,7 @@ writer = SummaryWriter('runs/experiment_2')
 
 # Training function
 def train_model(model, train_loader, val_loader, criterion, optimizer, device, 
-                scheduler, num_epochs=25, patience=10, base_model_path="./net/pre_trained_weights/best.pth"):
+                scheduler, num_epochs=25, patience=10, base_model_path="./net/pre_trained_weights/best_schedule.pth"):
     best_model_wts = copy.deepcopy(model.state_dict())
     epochs_no_improve = 0
     # Training loop
@@ -138,7 +138,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device,
 
         print()
 
-    print(f'Best val Acc: {best_acc:.4f}')
+    print(f'Best val Acc: {best_val_loss:.4f}')
 
     # Load best model weights
     model.load_state_dict(best_model_wts)
