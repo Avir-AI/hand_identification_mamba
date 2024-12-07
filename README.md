@@ -1,4 +1,5 @@
 # Biometric, Gender and Age Identification using Mamba
+[### Paper Link (Under Submission)](https://drive.google.com/file/d/1sSXjNGj6e_9YHTe9vbPa2pJsS_I6ytws/view?usp=sharing)
 
 ## Overview
 This project presents a novel approach to biometric identification that integrates the efficient long-range dependency modeling of Mamba with the U-Net architecture. Our model demonstrates superior accuracy and computational efficiency compared to previous works utilizing transformers and convolutional neural networks (CNNs).
@@ -33,8 +34,8 @@ pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https
 pip install -r requirements.txt
 ```
 ### Pre-trained Weights
-- [Download The Model](https://drive.google.com/file/d/1Te6sOMhBtbSUTqDzwWGTPkuPiS8cdZtB/view?usp=drive_link): `best.pth`
-- Move `best.pth` to: `net/pre_trained_weights`
+- [Download The Model](https://drive.google.com/file/d/11TsY9ydDq6tQNBzUXVKMKtgcfgPiWipR/view?usp=sharing): `best_schedule.pth`
+- Move `best_schedule.pth` to: `net/pre_trained_weights`
 
 ## Inference (not implemented)
 ```bash
