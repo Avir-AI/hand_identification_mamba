@@ -23,7 +23,7 @@ model = model.cuda()
 # Set up criterion, optimizer, and learning rate scheduler
 criterion = nn.CrossEntropyLoss(label_smoothing=0.1)  # Use CrossEntropyLoss with label smoothing
 optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
-scheduler = CustomLRScheduler(optimizer, lr, 8e-4, 10, 30, 4e-4)
+scheduler = CustomLRScheduler(optimizer, lr, 8e-4, 4e-4, 10, 30)
 # Initialize TensorBoard SummaryWriter
 writer = SummaryWriter('runs/experiment_2')
 
