@@ -54,11 +54,11 @@ Run the training process:
 ```bash
 python train.py
 ```
-## Validation
-After downloading the 11k hands images and , Run the validation process:
+## Testing
+After downloading the 11k hands images and , Run the testing process:
 ```bash
-python val.py
+python test.py
 ```
 ## Contact
-For any questions or issues, please open an issue on GitHub or contact the project maintainer at Amir.soltani1381@gmail.com.
+For any questions or issues, please open an issue on GitHub or contact the project maintainer at Amirsoltani2002@gmail.com.
 
